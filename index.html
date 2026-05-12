@@ -194,6 +194,119 @@
   ::-webkit-scrollbar-track { background:var(--bg); }
   ::-webkit-scrollbar-thumb { background:rgba(255,255,255,.1); }
 
+  /* ── Progress Bar with Character ── */
+  #progress-bar-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 99;
+  }
+  #progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-dim));
+    width: 0%;
+    position: relative;
+  }
+  #progress-character {
+    position: absolute;
+    right: -30px;
+    top: -50px;
+    width: 60px;
+    height: 60px;
+    background-image: url('uploads/idle_spriteSheets.png');
+    background-size: 180px 60px;
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.6));
+  }
+
+  #progress-character.running {
+    background-image: url('uploads/run_spriteSheets.png');
+    background-size: 240px 60px;
+  }
+
+  #progress-character.flipped {
+    transform: scaleX(-1);
+  }
+
+  /* ── Speech Bubble ── */
+  .speech-bubble {
+    position: fixed;
+    bottom: 80px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    color: var(--text);
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    animation: bubbleAppear 0.3s ease-out;
+    pointer-events: none;
+    z-index: 98;
+    min-height: 20px;
+  }
+
+  .speech-bubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid var(--surface);
+  }
+
+  @keyframes bubbleAppear {
+    from {
+      opacity: 0;
+      transform: translateX(-50%) translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  }
+
+  @keyframes bubbleFade {
+    0% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .progress-spark {
+    position: fixed;
+    bottom: 5px;
+    pointer-events: none;
+    border-radius: 50%;
+    animation: sparkFly 0.8s ease-out forwards;
+  }
+
+  @keyframes sparkFly {
+    0% {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(var(--tx), var(--ty)) scale(0);
+    }
+  }
+
   .reveal { opacity:0; transform:translateY(26px); transition:opacity .7s ease,transform .7s ease; }
   .reveal.visible { opacity:1; transform:translateY(0); }
 
@@ -299,6 +412,13 @@
 
 <div id="cursor"></div>
 <div id="cursor-ring"></div>
+
+<!-- Progress Bar -->
+<div id="progress-bar-container">
+  <div id="progress-bar-fill">
+    <div id="progress-character"></div>
+  </div>
+</div>
 
 <nav id="nav">
 <ul class="nav-links">
@@ -755,6 +875,216 @@ function fireTick() {
 fireTick();
 
 // ── End Magic System ───────────────────────────────
+
+// ── Progress Bar with Walking Character ──────────────────────
+const progressBar = document.getElementById('progress-bar-fill');
+const progressCharacter = document.getElementById('progress-character');
+
+const accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+// Debug
+console.log('Progress character element:', progressCharacter);
+console.log('Background image:', window.getComputedStyle(progressCharacter).backgroundImage);
+
+// Sprite анимация
+const IDLE_FRAMES = 3;
+const RUN_FRAMES = 4;
+const FRAME_WIDTH = 60; // Размер одного фрейма в пиксельх
+let isRunning = false;
+let lastScrollPos = 0;
+let scrollTimeout = null;
+let animationFrame = 0;
+let frameCounter = 0;
+let isScrollingDown = true; // Отслеживаем направление скролла
+
+function updateCharacterFrame() {
+  const frames = isRunning ? RUN_FRAMES : IDLE_FRAMES;
+  const frameIndex = Math.floor(frameCounter / 12) % frames; // Замедляем анимацию в 12 раз (в 3 раза медленнее)
+  const offsetX = frameIndex * FRAME_WIDTH;
+  progressCharacter.style.backgroundPosition = `-${offsetX}px 0`;
+  frameCounter++;
+}
+
+// Анимация персонажа
+function animateCharacter() {
+  updateCharacterFrame();
+  animationFrame = requestAnimationFrame(animateCharacter);
+}
+
+animateCharacter();
+
+function setRunning(running) {
+  if (isRunning !== running) {
+    isRunning = running;
+    frameCounter = 0; // Сбрасываем счётчик при смене режима
+    if (running) {
+      progressCharacter.classList.add('running');
+    } else {
+      progressCharacter.classList.remove('running');
+    }
+  }
+}
+
+let sparkTimer = null;
+
+// ── Speech Bubble System ──────────────────────────
+const SPEECH_PHRASES = [
+  "Cool guy, huh?",
+  "Wanna collaborate?",
+  "Don't be shy. Hire me",
+  "U looks great today",
+  "Psst... check my work",
+  "Still scrolling?",
+  "Like what u see?",
+  "Send me a message",
+  "VFX wizard here",
+  "Let's make something"
+];
+
+let currentBubble = null;
+let bubbleTimeout = null;
+let typingTimeout = null;
+
+function typeText(element, text, speed = 50) {
+  element.textContent = '';
+  let index = 0;
+
+  function type() {
+    if (index < text.length) {
+      element.textContent += text[index];
+      index++;
+      typingTimeout = setTimeout(type, speed);
+    }
+  }
+
+  type();
+}
+
+function updateSpeechBubblePosition() {
+  if (!currentBubble) return;
+
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrolled = window.scrollY;
+  const scrollPercent = (scrolled / scrollHeight) * 100;
+  const characterX = window.innerWidth * (scrollPercent / 100);
+
+  currentBubble.style.left = characterX + 'px';
+  currentBubble.style.transform = 'translateX(-50%)';
+}
+
+function showSpeechBubble() {
+  // Убираем старый диалог если есть
+  if (currentBubble) {
+    currentBubble.remove();
+  }
+
+  // Выбираем случайную фразу
+  const randomPhrase = SPEECH_PHRASES[Math.floor(Math.random() * SPEECH_PHRASES.length)];
+
+  // Создаём новый диалог
+  const bubble = document.createElement('div');
+  bubble.className = 'speech-bubble';
+  bubble.style.animation = 'bubbleAppear 0.3s ease-out, bubbleFade 3s ease-out 1s forwards';
+
+  document.body.appendChild(bubble);
+  currentBubble = bubble;
+
+  // Устанавливаем начальную позицию
+  updateSpeechBubblePosition();
+
+  // Печатаем текст по буквам
+  typeText(bubble, randomPhrase, 50);
+
+  // Удаляем диалог через 4 секунды
+  clearTimeout(bubbleTimeout);
+  bubbleTimeout = setTimeout(() => {
+    if (currentBubble === bubble) {
+      bubble.remove();
+      currentBubble = null;
+    }
+  }, 4000);
+}
+
+// Показываем диалог случайно (раз в 5-10 секунд)
+function scheduleRandomSpeech() {
+  const delay = 5000 + Math.random() * 5000;
+  setTimeout(() => {
+    showSpeechBubble();
+    scheduleRandomSpeech();
+  }, delay);
+}
+
+scheduleRandomSpeech();
+
+function createSpark(x) {
+  const spark = document.createElement('div');
+  spark.className = 'progress-spark';
+
+  // Случайный угол разлета
+  const angle = (Math.random() - 0.5) * Math.PI * 0.8;
+  const distance = 30 + Math.random() * 40;
+  const tx = Math.cos(angle) * distance;
+  const ty = -Math.sin(angle) * distance - (Math.random() * 30);
+
+  spark.style.setProperty('--tx', `${tx}px`);
+  spark.style.setProperty('--ty', `${ty}px`);
+  spark.style.left = x + 'px';
+  spark.style.width = (1.5 + Math.random() * 2) + 'px'; // Уменьшил в 2 раза: было 3-7px, теперь 1.5-3.5px
+  spark.style.height = spark.style.width;
+  spark.style.background = accentColor;
+  spark.style.boxShadow = `0 0 3px ${accentColor}`; // Уменьшил glow эффект
+
+  document.body.appendChild(spark);
+
+  setTimeout(() => spark.remove(), 800);
+}
+
+function updateProgressBar() {
+  const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const scrolled = window.scrollY;
+  const scrollPercent = (scrolled / scrollHeight) * 100;
+  progressBar.style.width = scrollPercent + '%';
+
+  // Обновляем позицию персонажа синхронно
+  const barFillWidth = window.innerWidth * (scrollPercent / 100);
+  progressBar.style.position = 'relative';
+  progressCharacter.style.position = 'absolute';
+
+  // Создаём искры при движении и запускаем анимацию бега
+  if (Math.abs(scrolled - lastScrollPos) > 5) {
+    // Определяем направление скролла
+    const scrollingDown = scrolled > lastScrollPos;
+    isScrollingDown = scrollingDown;
+
+    // Отражаем персонажа в зависимости от направления
+    if (scrollingDown) {
+      progressCharacter.classList.remove('flipped');
+    } else {
+      progressCharacter.classList.add('flipped');
+    }
+
+    setRunning(true);
+    for (let i = 0; i < 2; i++) {
+      createSpark(barFillWidth + (Math.random() - 0.5) * 40);
+    }
+    lastScrollPos = scrolled;
+
+    // Таймер для возврата в idle
+    clearTimeout(scrollTimeout);
+    scrollTimeout = setTimeout(() => {
+      setRunning(false);
+    }, 300); // Уменьшил до 300ms для более быстрого перехода в idle
+  }
+}
+
+window.addEventListener('scroll', () => {
+  updateProgressBar();
+  updateSpeechBubblePosition();
+});
+updateProgressBar();
+
+// ── End Progress Bar ───────────────────────────────────────────
+
 const obs = new IntersectionObserver(entries => entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); }), {threshold:.1});
 document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 </script>
