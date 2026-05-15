@@ -167,10 +167,13 @@
   }
 
   .plate-img { width:100%; height:100%; object-fit:contain; display:block; transition:transform .5s ease, filter .3s; filter:brightness(.9) saturate(.85); background:var(--surface); }
-  .plate:hover .plate-img { transform:scale(1.03); filter:brightness(1) saturate(1); }
+  .plate:hover .plate-img { transform:scale(1.03); filter:brightness(.6) saturate(.7); }
 
-  .plate-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.88) 0%,transparent 55%); display:flex; flex-direction:column; justify-content:flex-end; padding:24px; transform:translateY(8px); opacity:0; transition:opacity .3s,transform .3s; }
+  .plate-overlay { position:absolute; inset:0; background:linear-gradient(to top,rgba(0,0,0,.5) 0%,transparent 55%); display:flex; flex-direction:column; justify-content:flex-end; padding:24px; transform:translateY(8px); opacity:0; transition:opacity .3s,transform .3s; z-index:2; }
   .plate:hover .plate-overlay { opacity:1; transform:translateY(0); }
+
+  .plate::before { content:''; position:absolute; inset:0; background:rgba(0,0,0,0); transition:background .3s; pointer-events:none; z-index:1; }
+  .plate:hover::before { background:rgba(0,0,0,.4); }
   .plate-category { font-family:var(--font-mono); font-size:10px; color:var(--accent); letter-spacing:.15em; text-transform:uppercase; margin-bottom:6px; }
   .plate-title { font-size:20px; font-weight:700; margin-bottom:4px; }
   .plate-year { font-size:12px; color:var(--muted); font-family:var(--font-mono); }
@@ -574,68 +577,76 @@
   </div>
 
   <div class="plates-scroll">
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer">
-      <img class="plate-img" src="uploads/alexander-suprunov-maxresdefault-5e86464f.jpg" alt="Township FX" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Game FX</div>
-        <div class="plate-title">Township — Match FX</div>
-        <div class="plate-year">2024</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.05s">
-      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-explosion-preview0-5543d025.jpg" alt="Explosion FX" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Particle System</div>
-        <div class="plate-title">Explosion FX</div>
-        <div class="plate-year">2023</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.08s">
-      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-thumbnail-square0-148b6098.jpg" alt="Fishdom" />
-      <div class="plate-overlay">
-        <div class="plate-category">Game · UI FX</div>
-        <div class="plate-title">Fishdom Solitaire</div>
-        <div class="plate-year">2023</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.11s">
-      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-chrome-2024-05-15-17-44-48suprunov-a-2900e969.jpg" alt="Township Pixel" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Motion Design</div>
-        <div class="plate-title">Township — Environment FX</div>
-        <div class="plate-year">2024</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.14s">
-      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-toxic-expl-preview0-b06b86c9.jpg" alt="Toxic Explosion" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Shader FX</div>
-        <div class="plate-title">Toxic Explosion FX</div>
-        <div class="plate-year">2023</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.17s">
-      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-thumbnail-3f9b3af7.jpg" alt="Rare Card FX" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Parallax FX</div>
-        <div class="plate-title">Rare Card Effect</div>
-        <div class="plate-year">2022</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/artwork/zxbdG6','_blank')" style="cursor:pointer" style="transition-delay:.20s">
-      <img class="plate-img" src="uploads/chess_preview.png" alt="Homescapes Chess" />
-      <div class="plate-overlay">
-        <div class="plate-category">Unity · Match-3 VFX</div>
-        <div class="plate-title">Homescapes — Chess</div>
-        <div class="plate-year">2024</div>
-      </div>
-    </div>
-    <div class="plate reveal" onclick="window.open('https://www.artstation.com/artwork/Gv4zbd','_blank')" style="cursor:pointer" style="transition-delay:.23s">
+    <!-- 2026 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/artwork/Gv4zbd','_blank')" style="cursor:pointer">
       <img class="plate-img" src="uploads/thumbmail_pinata_small.png" alt="Homescapes Pinata" />
       <div class="plate-overlay">
         <div class="plate-category">Unity · Game FX</div>
         <div class="plate-title">Homescapes — Pinata</div>
         <div class="plate-year">2026</div>
+      </div>
+    </div>
+    <!-- 2025 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/artwork/zxbdG6','_blank')" style="cursor:pointer" style="transition-delay:.05s">
+      <img class="plate-img" src="uploads/chess_preview.png" alt="Homescapes Chess" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Match-3 VFX</div>
+        <div class="plate-title">Homescapes — Chess</div>
+        <div class="plate-year">2025</div>
+      </div>
+    </div>
+    <!-- 2025 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.08s">
+      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-thumbnail-3f9b3af7.jpg" alt="Rare Card Effect" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Parallax FX</div>
+        <div class="plate-title">Rare Card Effect</div>
+        <div class="plate-year">2025</div>
+      </div>
+    </div>
+    <!-- 2024 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.11s">
+      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-explosion-preview0-5543d025.jpg" alt="Explosion FX" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Particle System</div>
+        <div class="plate-title">Explosion FX</div>
+        <div class="plate-year">2024</div>
+      </div>
+    </div>
+    <!-- 2024 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.14s">
+      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-toxic-expl-preview0-b06b86c9.jpg" alt="Toxic Explosion FX" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Shader FX</div>
+        <div class="plate-title">Toxic Explosion FX</div>
+        <div class="plate-year">2024</div>
+      </div>
+    </div>
+    <!-- 2023 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.17s">
+      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-thumbnail-square0-148b6098.jpg" alt="Fishdom Solitaire" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Core VFX</div>
+        <div class="plate-title">Fishdom Solitaire</div>
+        <div class="plate-year">2023</div>
+      </div>
+    </div>
+    <!-- 2021 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.20s">
+      <img class="plate-img" src="uploads/alexander-suprunov-maxresdefault-5e86464f.jpg" alt="Township Match3 VFX" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Game FX</div>
+        <div class="plate-title">Township — Match3 VFX</div>
+        <div class="plate-year">2021</div>
+      </div>
+    </div>
+    <!-- 2020 -->
+    <div class="plate reveal" onclick="window.open('https://www.artstation.com/alexandersuprunov','_blank')" style="cursor:pointer" style="transition-delay:.23s">
+      <img class="plate-img" src="uploads/alexander-suprunov-alexander-suprunov-chrome-2024-05-15-17-44-48suprunov-a-2900e969.jpg" alt="Township Promos" />
+      <div class="plate-overlay">
+        <div class="plate-category">Unity · Motion Design</div>
+        <div class="plate-title">Township — Promos</div>
+        <div class="plate-year">2020</div>
       </div>
     </div>
   </div>
